@@ -1,4 +1,6 @@
-# Run
+# Black Widow - Blackbox Data-driven Web Scanning
+
+## Running Black Widow
 
 1. Add chromedriver to your path
 
