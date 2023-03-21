@@ -3,6 +3,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, UnexpectedAlertPresentException, NoSuchFrameException, NoAlertPresentException, ElementNotVisibleException, InvalidElementStateException
+from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, urljoin
 import json
 import pprint
@@ -39,7 +40,7 @@ def extract_urls(driver):
     urls = set()
 
     # Search for urls in <a>
-    elem = driver.find_elements_by_tag_name("a")
+    elem = driver.find_elements(By.TAG_NAME, "a")
     for el in elem:
         try:
             if el.get_attribute("href"):
@@ -66,7 +67,7 @@ def extract_urls(driver):
             print(traceback.format_exc())
 
     # Search for urls in <iframe>
-    elem = driver.find_elements_by_tag_name("iframe")
+    elem = driver.find_elements(By.TAG_NAME, "iframe")
     for el in elem:
         try:
             if el.get_attribute("src"):
@@ -79,7 +80,7 @@ def extract_urls(driver):
             print(traceback.format_exc())
 
     # Search for urls in <meta>
-    elem = driver.find_elements_by_tag_name("meta")
+    elem = driver.find_elements(By.TAG_NAME, "meta")
     for el in elem:
         try:
             

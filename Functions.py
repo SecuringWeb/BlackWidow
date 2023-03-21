@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, UnexpectedAlertPresentException, NoSuchFrameException, NoAlertPresentException, ElementNotVisibleException, InvalidElementStateException
+from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, urljoin
 import json
 import pprint
@@ -59,7 +60,7 @@ def xpath_row_to_cell(addr):
 def remove_alerts(driver):
     # Try to clean up alerts
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alert.dismiss()
     except NoAlertPresentException:
         pass
@@ -356,13 +357,13 @@ def execute_event(driver, do):
             if el.tag_name == "select":
                 # If need to change a select we try the different
                 # options
-                opts = el.find_elements_by_tag_name("option")
+                opts = el.find_elements(By.TAG_NAME, "option")
                 for opt in opts:
                     try:
                         opt.click()
                     except UnexpectedAlertPresentException:
                         print("Alert detected")
-                        alert = driver.switch_to_alert()
+                        alert = driver.switch_to.alert
                         alert.dismiss()
             else:
                 # If ot a <select> we try to write
@@ -437,7 +438,7 @@ def form_fill(driver, target_form):
 
     # Ensure we don't have any alerts before filling in form
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alertText = alert.text
         logging.info("Removed alert: " +  alertText)
         alert.accept();
@@ -445,7 +446,7 @@ def form_fill(driver, target_form):
         logging.info("No alert removed (probably due to there not being any)")
         pass
 
-    elem = driver.find_elements_by_tag_name("form")
+    elem = driver.find_elements(By.TAG_NAME, "form")
     for el in elem:
         current_form = parse_form(el, driver)
 
@@ -455,7 +456,7 @@ def form_fill(driver, target_form):
             continue
 
         # TODO handle each element
-        inputs = el.find_elements_by_tag_name("input")
+        inputs = el.find_elements(By.TAG_NAME, "input")
         if not inputs:
             inputs = []
             logging.warning("No inputs founds, falling back to JavaScript")
@@ -475,7 +476,7 @@ def form_fill(driver, target_form):
 
 
 
-        buttons = el.find_elements_by_tag_name("button")
+        buttons = el.find_elements(By.TAG_NAME, "button")
         inputs.extend(buttons)
 
         for iel in inputs:
@@ -579,7 +580,7 @@ def form_fill(driver, target_form):
                 logging.error(traceback.format_exc())
 
         # <select>
-        selects = el.find_elements_by_tag_name("select")
+        selects = el.find_elements(By.TAG_NAME, "select")
         for select in selects:
             form_select = Classes.Form.SelectElement( "select", select.get_attribute("name") )
             if form_select in target_form.inputs:
@@ -603,7 +604,7 @@ def form_fill(driver, target_form):
 
 
         # <textarea>
-        textareas = el.find_elements_by_tag_name("textarea")
+        textareas = el.find_elements(By.TAG_NAME, "textarea")
         for ta in textareas:
             form_ta = Classes.Form.Element( ta.get_attribute("type"),
                                             ta.get_attribute("name"),
@@ -620,7 +621,7 @@ def form_fill(driver, target_form):
                 logging.warning("[textareas] could NOT FIND " + str(form_ta) )
 
         # <iframes>
-        iframes = el.find_elements_by_tag_name("iframe")
+        iframes = el.find_elements(By.TAG_NAME, "iframe")
         for iframe in iframes:
             form_iframe = Classes.Form.Element("iframe", iframe.get_attribute("id"), "")
 
@@ -630,7 +631,7 @@ def form_fill(driver, target_form):
                 try:
                     iframe_id =  i.name
                     driver.switch_to.frame(iframe_id)
-                    iframe_body = driver.find_element_by_tag_name("body")
+                    iframe_body = driver.find_element(By.TAG_NAME, "body")
                     if(iframe_body.get_attribute("contenteditable") == "true"):
                         iframe_body.clear()
                         iframe_body.send_keys(i.value)
@@ -676,7 +677,7 @@ def form_fill(driver, target_form):
 
                 # Some forms show an alert with a confirmation
                 try:
-                    alert = driver.switch_to_alert()
+                    alert = driver.switch_to.alert
                     alertText = alert.text
                     logging.info("Removed alert: " +  alertText)
                     alert.accept();
@@ -690,7 +691,7 @@ def form_fill(driver, target_form):
 
         # Check if submission caused an "are you sure" alert
         try:
-            alert = driver.switch_to_alert()
+            alert = driver.switch_to.alert
             alertText = alert.text
             logging.info("Removed alert: " +  alertText)
             alert.accept();
@@ -710,7 +711,7 @@ def ui_form_fill(driver, target_form):
 
     # Ensure we don't have any alerts before filling in form
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alertText = alert.text
         logging.info("Removed alert: " +  alertText)
         alert.accept();
@@ -849,8 +850,8 @@ def set_form_values(forms):
 
 
 def enter_iframe(driver, target_frame):
-    elem = driver.find_elements_by_tag_name("iframe")
-    elem.extend( driver.find_elements_by_tag_name("frame") )
+    elem = driver.find_elements(By.TAG_NAME, "iframe")
+    elem.extend( driver.find_elements(By.TAG_NAME, "frame") )
 
     for el in elem:
         try:

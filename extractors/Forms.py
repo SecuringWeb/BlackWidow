@@ -3,6 +3,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, UnexpectedAlertPresentException, NoSuchFrameException, NoAlertPresentException, ElementNotVisibleException, InvalidElementStateException
+from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, urljoin
 import json
 import pprint
@@ -39,7 +40,7 @@ def parse_form(el, driver):
 
     # <input> tags
     try:
-        inputs = el.find_elements_by_tag_name("input")
+        inputs = el.find_elements(By.TAG_NAME, "input")
     except StaleElementReferenceException as e:
         print("Stale pasta in inputs")
         logging.error("Stale pasta in inputs")
@@ -96,7 +97,7 @@ def parse_form(el, driver):
 
 
     # <select> and <option> tags
-    selects = el.find_elements_by_tag_name("select")
+    selects = el.find_elements(By.TAG_NAME, "select")
     for select in selects:
         tmp = {'name': None}
         if select.get_attribute("name"):
@@ -111,7 +112,7 @@ def parse_form(el, driver):
             #    form_select.selected = option.get_attribute("value")
 
     # <textarea> tags
-    textareas = el.find_elements_by_tag_name("textarea")
+    textareas = el.find_elements(By.TAG_NAME, "textarea")
     for ta in textareas:
         tmp = {'name': None, 'value': None}
         try:
@@ -128,7 +129,7 @@ def parse_form(el, driver):
         form.add_textarea(tmp['name'], tmp['value'])
 
     # <button> tags
-    buttons = el.find_elements_by_tag_name("button")
+    buttons = el.find_elements(By.TAG_NAME, "button")
     for button in buttons:
         form.add_button(button.get_attribute("type"),
                         button.get_attribute("name"),
@@ -136,11 +137,11 @@ def parse_form(el, driver):
                        )
 
     # <iframe> with <body contenteditable>
-    iframes = el.find_elements_by_tag_name("iframe")
+    iframes = el.find_elements(By.TAG_NAME, "iframe")
     for iframe in iframes:
         iframe_id =  iframe.get_attribute("id")
         driver.switch_to.frame(iframe)
-        iframe_body = driver.find_element_by_tag_name("body")
+        iframe_body = driver.find_element(By.TAG_NAME, "body")
 
         if(iframe_body.get_attribute("contenteditable") == "true"):
             form.add_iframe_body(iframe_id)
@@ -155,7 +156,7 @@ def parse_form(el, driver):
 
 # Search for <form>
 def extract_forms(driver):
-    elem = driver.find_elements_by_tag_name("form")
+    elem = driver.find_elements(By.TAG_NAME, "form")
 
     forms = set()
     for el in elem:
