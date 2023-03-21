@@ -1,0 +1,13 @@
+# Folders we don't want to track
+logs/
+__pycache__/
+venv/
+
+# Files that BlackWidow creates
+command.txt
+queue.txt
+run.flag
+attack_lookup_table.txt
+form_xss.txt
+graph_mathematica.txt
+successful_xss.txt
