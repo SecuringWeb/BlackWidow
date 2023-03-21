@@ -10,6 +10,7 @@ from Classes import *
 parser = argparse.ArgumentParser(description='Crawler')
 parser.add_argument("--debug", action='store_true',  help="Dont use path deconstruction and recon scan. Good for testing single URL")
 parser.add_argument("--url", help="Custom URL to crawl")
+parser.add_argument("--crawler", action='store_true', help="Only run the crawler")
 args = parser.parse_args()
 
 # Clean form_files/dynamic
@@ -47,7 +48,7 @@ driver.add_script( open("js/remove_alerts.js", "r").read() )
 
 if args.url:
     url = args.url
-    Crawler(driver, url).start(args.debug)
+    Crawler(driver, url).start(args.debug, args.crawler)
 else:
     print("Please use --url")
 

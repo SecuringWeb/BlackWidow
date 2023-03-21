@@ -482,7 +482,11 @@ class Crawler:
 
         logging.info("Init crawl on " + url)
 
-    def start(self, debug_mode=False):
+    def start(self, debug_mode=False, crawler_mode=False):
+        if(crawler_mode == False):
+            print("run both crawler module and attack module")
+        else:
+            print("only run the crawler module")
         self.root_req = Request("ROOTREQ", "get")
         req = Request(self.url, "get")
         self.graph.add(self.root_req)
@@ -568,8 +572,10 @@ class Crawler:
                 #print(self.graph.toMathematica())
                 break
 
-        print("Done crawling, ready to attack!")
-        self.attack()
+        print("Done crawling")
+        if(crawler_mode == False):
+            print("Start Attacking")
+            self.attack()
 
     def extract_vectors(self):
         print("Extracting urls")
