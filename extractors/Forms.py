@@ -69,7 +69,7 @@ def parse_form(el, driver):
 
             if( current_form.method == form.method and current_form.action == form.action ):
                 for js_el in js_form['elements']:
-                    web_el = driver.find_element_by_xpath(js_el['xpath'])
+                    web_el = driver.find_element(By.XPATH, js_el['xpath'])
                     # print("Adding js form input", js_el, web_el)
                     inputs.append(web_el)
                 break
