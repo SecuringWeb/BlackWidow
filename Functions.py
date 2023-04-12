@@ -321,7 +321,7 @@ def execute_event(driver, do):
 
     try:
         if   do.event == "onclick" or do.event == "click":
-            web_element =  driver.find_element(By.XPATH, By.XPATH, do.addr)
+            web_element =  driver.find_element(By.XPATH, do.addr)
             logging.info("Click on %s" % web_element )
 
             if web_element.is_displayed():
