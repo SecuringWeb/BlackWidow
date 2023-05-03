@@ -9,6 +9,7 @@ from selenium.common.exceptions import (StaleElementReferenceException,
                                        WebDriverException,
                                        InvalidElementStateException
                                        )
+from selenium.webdriver.common.by import By
 
 from urllib.parse import urlparse, urljoin
 import json
@@ -481,7 +482,11 @@ class Crawler:
 
         logging.info("Init crawl on " + url)
 
-    def start(self, debug_mode=False):
+    def start(self, debug_mode=False, crawler_mode=False):
+        if(crawler_mode == False):
+            print("run both crawler module and attack module")
+        else:
+            print("only run the crawler module")
         self.root_req = Request("ROOTREQ", "get")
         req = Request(self.url, "get")
         self.graph.add(self.root_req)
@@ -567,8 +572,10 @@ class Crawler:
                 #print(self.graph.toMathematica())
                 break
 
-        print("Done crawling, ready to attack!")
-        self.attack()
+        print("Done crawling")
+        if(crawler_mode == False):
+            print("Start Attacking")
+            self.attack()
 
     def extract_vectors(self):
         print("Extracting urls")
@@ -657,18 +664,18 @@ class Crawler:
 
             try:
                 if  event.event == "oninput" or event.event == "input":
-                    el = driver.find_element_by_xpath(event.addr)
+                    el = driver.find_element(By.XPATH, event.addr)
                     el.clear()
                     el.send_keys(payload)
                     el.send_keys(Keys.RETURN)
-                    logging.info("oninput %s" %  driver.find_element_by_xpath(event.addr) )
+                    logging.info("oninput %s" %  driver.find_element(By.XPATH, event.addr) )
                 if  event.event == "oncompositionstart" or event.event == "compositionstart":
-                    el = driver.find_element_by_xpath(event.addr)
+                    el = driver.find_element(By.XPATH, event.addr)
                     el.click()
                     el.clear()
                     el.send_keys(payload)
                     el.send_keys(Keys.RETURN)
-                    logging.info("oncompositionstart %s" %  driver.find_element_by_xpath(event.addr) )
+                    logging.info("oncompositionstart %s" %  driver.find_element(By.XPATH, event.addr) )
 
                 else:
                     logging.error("Could not attack event.event %s" % event.event)
@@ -828,7 +835,7 @@ class Crawler:
         successful_xss = set()
 
         # attribute injections
-        attribute_injects = self.driver.find_elements_by_xpath("//*[@jaekpot-attribute]")
+        attribute_injects = self.driver.find_elements(By.XPATH, "//*[@jaekpot-attribute]")
         for attribute in attribute_injects:
             lookup_id = attribute.get_attribute("jaekpot-attribute")
             successful_xss.add(lookup_id)
@@ -942,7 +949,7 @@ class Crawler:
 
     def inspect_tracker(self, vector_edge):
         try:
-            body_text = self.driver.find_element_by_tag_name("body").text
+            body_text = self.driver.find_element(By.TAG_NAME, "body").text
 
             for tracker in self.io_graph:
                 if tracker in body_text:
@@ -1377,7 +1384,7 @@ class Crawler:
                 time.sleep(1)
         except UnexpectedAlertPresentException:
             logging.warning("Alert detected")
-            alert = driver.switch_to_alert()
+            alert = driver.switch_to.alert
             alert.dismiss()
 
             # Check if double check is needed...
@@ -1431,7 +1438,7 @@ class Crawler:
             wait_json = driver.execute_script("return JSON.stringify(need_to_wait)")
         except UnexpectedAlertPresentException:
             logging.warning("Alert detected")
-            alert = driver.switch_to_alert()
+            alert = driver.switch_to.alert
             alert.dismiss()
         wait_json = driver.execute_script("return JSON.stringify(need_to_wait)")
         wait = json.loads(wait_json)
@@ -1501,7 +1508,7 @@ class Crawler:
 
         # Try to clean up alerts
         try:
-            alert = driver.switch_to_alert()
+            alert = driver.switch_to.alert
             alert.dismiss()
         except NoAlertPresentException:
             pass

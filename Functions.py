@@ -7,6 +7,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, UnexpectedAlertPresentException, NoSuchFrameException, NoAlertPresentException, ElementNotVisibleException, InvalidElementStateException
+from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, urljoin
 import json
 import pprint
@@ -59,7 +60,7 @@ def xpath_row_to_cell(addr):
 def remove_alerts(driver):
     # Try to clean up alerts
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alert.dismiss()
     except NoAlertPresentException:
         pass
@@ -320,7 +321,7 @@ def execute_event(driver, do):
 
     try:
         if   do.event == "onclick" or do.event == "click":
-            web_element =  driver.find_element_by_xpath(do.addr)
+            web_element =  driver.find_element(By.XPATH, do.addr)
             logging.info("Click on %s" % web_element )
 
             if web_element.is_displayed():
@@ -329,60 +330,60 @@ def execute_event(driver, do):
                 logging.warning("Trying to click on invisible element. Use JavaScript")
                 driver.execute_script("arguments[0].click()", web_element)
         elif do.event == "ondblclick" or do.event == "dblclick":
-            web_element =  driver.find_element_by_xpath(do.addr)
+            web_element =  driver.find_element(By.XPATH, do.addr)
             logging.info("Double click on %s" % web_element )
             ActionChains(driver).double_click(web_element).perform()
         elif do.event == "onmouseout":
-            logging.info("Mouseout on %s" %  driver.find_element_by_xpath(do.addr) )
-            driver.find_element_by_xpath(do.addr).click()
-            el = driver.find_element_by_xpath(do.addr)
+            logging.info("Mouseout on %s" %  driver.find_element(By.XPATH, do.addr) )
+            driver.find_element(By.XPATH, do.addr).click()
+            el = driver.find_element(By.XPATH, do.addr)
             # TODO find first element in body
-            body = driver.find_element_by_xpath("/html/body")
+            body = driver.find_element(By.XPATH, "/html/body")
             ActionChains(driver).move_to_element(el).move_to_element(body).perform()
         elif do.event == "onmouseover":
-            logging.info("Mouseover on %s" %  driver.find_element_by_xpath(do.addr) )
-            el = driver.find_element_by_xpath(do.addr)
+            logging.info("Mouseover on %s" %  driver.find_element(By.XPATH, do.addr) )
+            el = driver.find_element(By.XPATH, do.addr)
             ActionChains(driver).move_to_element(el).perform()
         elif  do.event == "onmousedown":
-            logging.info("Click (mousedown) on %s" %  driver.find_element_by_xpath(do.addr) )
-            driver.find_element_by_xpath(do.addr).click()
+            logging.info("Click (mousedown) on %s" %  driver.find_element(By.XPATH, do.addr) )
+            driver.find_element(By.XPATH, do.addr).click()
         elif  do.event == "onmouseup":
-            logging.info("Mouseup on %s" %  driver.find_element_by_xpath(do.addr) )
-            el = driver.find_element_by_xpath(do.addr)
+            logging.info("Mouseup on %s" %  driver.find_element(By.XPATH, do.addr) )
+            el = driver.find_element(By.XPATH, do.addr)
             ActionChains(driver).move_to_element(el).release().perform()
         elif  do.event == "change" or do.event == "onchange":
-            el = driver.find_element_by_xpath(do.addr)
-            logging.info("Change %s" %  driver.find_element_by_xpath(do.addr) )
+            el = driver.find_element(By.XPATH, do.addr)
+            logging.info("Change %s" %  driver.find_element(By.XPATH, do.addr) )
             if el.tag_name == "select":
                 # If need to change a select we try the different
                 # options
-                opts = el.find_elements_by_tag_name("option")
+                opts = el.find_elements(By.TAG_NAME, "option")
                 for opt in opts:
                     try:
                         opt.click()
                     except UnexpectedAlertPresentException:
                         print("Alert detected")
-                        alert = driver.switch_to_alert()
+                        alert = driver.switch_to.alert
                         alert.dismiss()
             else:
                 # If ot a <select> we try to write
-                el = driver.find_element_by_xpath(do.addr)
+                el = driver.find_element(By.XPATH, do.addr)
                 el.clear()
                 el.send_keys("jAEkPot")
                 el.send_keys(Keys.RETURN)
         elif  do.event == "input" or do.event == "oninput":
-            el = driver.find_element_by_xpath(do.addr)
+            el = driver.find_element(By.XPATH, do.addr)
             el.clear()
             el.send_keys("jAEkPot")
             el.send_keys(Keys.RETURN)
-            logging.info("oninput %s" %  driver.find_element_by_xpath(do.addr) )
+            logging.info("oninput %s" %  driver.find_element(By.XPATH, do.addr) )
 
         elif  do.event == "compositionstart":
-            el = driver.find_element_by_xpath(do.addr)
+            el = driver.find_element(By.XPATH, do.addr)
             el.clear()
             el.send_keys("jAEkPot")
             el.send_keys(Keys.RETURN)
-            logging.info("Composition Start %s" %  driver.find_element_by_xpath(do.addr) )
+            logging.info("Composition Start %s" %  driver.find_element(By.XPATH, do.addr) )
 
         else:
             logging.warning("Warning Unhandled event %s " % str(do.event) )
@@ -437,7 +438,7 @@ def form_fill(driver, target_form):
 
     # Ensure we don't have any alerts before filling in form
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alertText = alert.text
         logging.info("Removed alert: " +  alertText)
         alert.accept();
@@ -445,7 +446,7 @@ def form_fill(driver, target_form):
         logging.info("No alert removed (probably due to there not being any)")
         pass
 
-    elem = driver.find_elements_by_tag_name("form")
+    elem = driver.find_elements(By.TAG_NAME, "form")
     for el in elem:
         current_form = parse_form(el, driver)
 
@@ -455,7 +456,7 @@ def form_fill(driver, target_form):
             continue
 
         # TODO handle each element
-        inputs = el.find_elements_by_tag_name("input")
+        inputs = el.find_elements(By.TAG_NAME, "input")
         if not inputs:
             inputs = []
             logging.warning("No inputs founds, falling back to JavaScript")
@@ -469,13 +470,13 @@ def form_fill(driver, target_form):
                 # TODO Need better COMPARE!
                 if( current_form.action == target_form.action and current_form.method ==  target_form.method ):
                     for js_el in js_form['elements']:
-                        web_el = driver.find_element_by_xpath(js_el['xpath'])
+                        web_el = driver.find_element(By.XPATH, js_el['xpath'])
                         inputs.append(web_el)
                     break
 
 
 
-        buttons = el.find_elements_by_tag_name("button")
+        buttons = el.find_elements(By.TAG_NAME, "button")
         inputs.extend(buttons)
 
         for iel in inputs:
@@ -579,7 +580,7 @@ def form_fill(driver, target_form):
                 logging.error(traceback.format_exc())
 
         # <select>
-        selects = el.find_elements_by_tag_name("select")
+        selects = el.find_elements(By.TAG_NAME, "select")
         for select in selects:
             form_select = Classes.Form.SelectElement( "select", select.get_attribute("name") )
             if form_select in target_form.inputs:
@@ -603,7 +604,7 @@ def form_fill(driver, target_form):
 
 
         # <textarea>
-        textareas = el.find_elements_by_tag_name("textarea")
+        textareas = el.find_elements(By.TAG_NAME, "textarea")
         for ta in textareas:
             form_ta = Classes.Form.Element( ta.get_attribute("type"),
                                             ta.get_attribute("name"),
@@ -620,7 +621,7 @@ def form_fill(driver, target_form):
                 logging.warning("[textareas] could NOT FIND " + str(form_ta) )
 
         # <iframes>
-        iframes = el.find_elements_by_tag_name("iframe")
+        iframes = el.find_elements(By.TAG_NAME, "iframe")
         for iframe in iframes:
             form_iframe = Classes.Form.Element("iframe", iframe.get_attribute("id"), "")
 
@@ -630,7 +631,7 @@ def form_fill(driver, target_form):
                 try:
                     iframe_id =  i.name
                     driver.switch_to.frame(iframe_id)
-                    iframe_body = driver.find_element_by_tag_name("body")
+                    iframe_body = driver.find_element(By.TAG_NAME, "body")
                     if(iframe_body.get_attribute("contenteditable") == "true"):
                         iframe_body.clear()
                         iframe_body.send_keys(i.value)
@@ -676,7 +677,7 @@ def form_fill(driver, target_form):
 
                 # Some forms show an alert with a confirmation
                 try:
-                    alert = driver.switch_to_alert()
+                    alert = driver.switch_to.alert
                     alertText = alert.text
                     logging.info("Removed alert: " +  alertText)
                     alert.accept();
@@ -690,7 +691,7 @@ def form_fill(driver, target_form):
 
         # Check if submission caused an "are you sure" alert
         try:
-            alert = driver.switch_to_alert()
+            alert = driver.switch_to.alert
             alertText = alert.text
             logging.info("Removed alert: " +  alertText)
             alert.accept();
@@ -710,7 +711,7 @@ def ui_form_fill(driver, target_form):
 
     # Ensure we don't have any alerts before filling in form
     try:
-        alert = driver.switch_to_alert()
+        alert = driver.switch_to.alert
         alertText = alert.text
         logging.info("Removed alert: " +  alertText)
         alert.accept();
@@ -720,7 +721,7 @@ def ui_form_fill(driver, target_form):
 
 
     for source in target_form.sources:
-        web_element =  driver.find_element_by_xpath(source['xpath'])
+        web_element =  driver.find_element(By.XPATH, source['xpath'])
 
         if web_element.get_attribute("maxlength"):
             try:
@@ -742,7 +743,7 @@ def ui_form_fill(driver, target_form):
                 logging.error("[inputs] also faild with JS " + str(web_element)  )
 
 
-    submit_element =  driver.find_element_by_xpath(target_form.submit)
+    submit_element =  driver.find_element(By.XPATH, target_form.submit)
     submit_element.click()
 
 def set_standard_values(old_form):
@@ -849,8 +850,8 @@ def set_form_values(forms):
 
 
 def enter_iframe(driver, target_frame):
-    elem = driver.find_elements_by_tag_name("iframe")
-    elem.extend( driver.find_elements_by_tag_name("frame") )
+    elem = driver.find_elements(By.TAG_NAME, "iframe")
+    elem.extend( driver.find_elements(By.TAG_NAME, "frame") )
 
     for el in elem:
         try:

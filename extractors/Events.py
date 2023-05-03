@@ -3,6 +3,7 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import StaleElementReferenceException, TimeoutException, UnexpectedAlertPresentException, NoSuchFrameException, NoAlertPresentException, ElementNotVisibleException, InvalidElementStateException
+from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, urljoin
 import json
 import pprint
@@ -21,7 +22,7 @@ import Classes
 
 
 def extract_data_toggle(driver):
-    toggles = driver.find_elements_by_xpath("//button[@data-toggle]") 
+    toggles = driver.find_elements(By.XPATH, "//button[@data-toggle]") 
     dos = []
     for toggle in toggles:
 
@@ -37,13 +38,13 @@ def extract_data_toggle(driver):
     return dos
 
 def extract_inputs(driver):
-    toggles = driver.find_elements_by_xpath("//input") 
+    toggles = driver.find_elements(By.XPATH, "//input") 
     dos = []
     for toggle in toggles:
         input_type = toggle.get_attribute("type")
         if (not input_type) or input_type == "text":
 
-            in_form = toggle.find_elements_by_xpath(".//ancestor::form")
+            in_form = toggle.find_elements(By.XPATH, ".//ancestor::form")
             if not in_form:
                 xpath = driver.execute_script("return getXPath(arguments[0])", toggle)
                 do = {'function_id': '',
@@ -54,7 +55,7 @@ def extract_inputs(driver):
                       'class': ''}
                 dos.append(do)
 
-    toggles = driver.find_elements_by_xpath("//textarea")
+    toggles = driver.find_elements(By.XPATH, "//textarea")
     for toggle in toggles:
         xpath = driver.execute_script("return getXPath(arguments[0])", toggle)
         do = {'function_id': '',
@@ -70,7 +71,7 @@ def extract_inputs(driver):
 
 
 def extract_fake_buttons(driver):
-    fake_buttons = driver.find_elements_by_class_name("btn") 
+    fake_buttons = driver.find_elements(By.CLASS_NAME, "btn") 
     dos = []
     for button in fake_buttons:
 
